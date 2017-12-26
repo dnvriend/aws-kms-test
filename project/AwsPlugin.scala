@@ -13,7 +13,6 @@ import sbt._
 import sbt.complete.DefaultParsers._
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable
 import scalaz.Disjunction
 import scalaz.Scalaz._
 
@@ -141,7 +140,7 @@ object AwsPlugin extends AutoPlugin {
       val projectVersion: String = version.value
       val keyDescription: String = s"$organization.$projectName-$projectVersion"
       val kmsClient = clientKMS.value
-      val result = KMSOperations.createCmk(keyDescription, kmsClient)
+      val result = KMSOperations.createCmk(keyDescription, projectName, projectOrganization, kmsClient)
       println(
         s"""
           |KeyId: ${result.getKeyMetadata.getKeyId}
@@ -314,13 +313,19 @@ object KMSOperations {
     AWSKMSClientBuilder.defaultClient()
   }
 
-  def createCmk(description: String, client: AWSKMS): CreateKeyResult = {
-    client.createKey(new CreateKeyRequest().withDescription(description))
+  def createCmk(description: String, projectName: String, projectOrganization: String, client: AWSKMS): CreateKeyResult = {
+    client.createKey(new CreateKeyRequest()
+      .withDescription(description)
+        .withTags(
+          new Tag().withTagKey("project:name").withTagValue(projectName),
+          new Tag().withTagKey("project:organization").withTagValue(projectOrganization)
+        )
+    )
   }
 
   def createDataKey(keyId: String, client: AWSKMS): GenerateDataKeyResult = {
     client.generateDataKey(new GenerateDataKeyRequest()
-        .withKeyId(keyId )
+        .withKeyId(keyId)
       .withKeySpec(DataKeySpec.AES_256))
   }
 
