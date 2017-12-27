@@ -10,8 +10,8 @@ class EncryptDataTest extends TestSpec {
   // All CMKs must be enabled and not pending deletion else an error will occur
   // eg. com.amazonaws.services.kms.model.DisabledException -> when one of the keys is disabled
   // or. com.amazonaws.services.kms.model.KMSInvalidStateException -> when deleting the key
-  val KeyArn1 = "arn:aws:kms:eu-west-1:015242279314:key/88ba2f35-6d06-4cf8-8bd8-75e7157ee58e"
-  val KeyArn2 = "arn:aws:kms:eu-west-1:015242279314:key/721e24fd-86c5-4ee8-95ef-cd0a9f63c74b"
+  val KeyArn1 = "arn:aws:kms:eu-west-1:015242279314:key/04a8c913-9c2b-42e8-a4b5-1bd2beccc3f2"
+  val KeyArn2 = "arn:aws:kms:eu-west-2:015242279314:key/8272df61-67ce-42ec-b3b3-a8f2e080ed4b"
 
   val text = "HelloWorld"
   val plainText: Array[Byte] = text.getBytes("UTF-8")
