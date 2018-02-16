@@ -10,11 +10,30 @@ class EncryptDataTest extends TestSpec {
   // All CMKs must be enabled and not pending deletion else an error will occur
   // eg. com.amazonaws.services.kms.model.DisabledException -> when one of the keys is disabled
   // or. com.amazonaws.services.kms.model.KMSInvalidStateException -> when deleting the key
+  // Customer Master Key (CMK)
   val KeyArn1 = "arn:aws:kms:eu-west-1:015242279314:key/04a8c913-9c2b-42e8-a4b5-1bd2beccc3f2"
   val KeyArn2 = "arn:aws:kms:eu-west-2:015242279314:key/8272df61-67ce-42ec-b3b3-a8f2e080ed4b"
 
   val text = "HelloWorld"
   val plainText: Array[Byte] = text.getBytes("UTF-8")
+  val decodedText: String = new String(plainText, "UTF-8")
+
+  // Customer Master Key (CMK) => ARN: aws managed key => no direct access to key
+  // Function: "Request for Encryption Key"
+  // CMK => Encryption Key: ("encrypted encryption-key":"plain text encryption key")
+  // Function: "Request for Decryption"
+  // (CMK, Encrypted Encryption Key) => plain text encryption key
+
+  // encrypt
+  // byte-array => byte-array
+  // plain text => cipher text
+  // (plain text, plain text encryption key) => cipher text
+  // [cipher text][encrypted encryption-key]
+
+  // decrypt
+  // byte-array => byte-array
+  // cipher text => plain text
+  // (cipher text, key) => plain text
 
   it should "encrypt / decrypt data" in {
     // instantiate the AWS Encryption SDK
@@ -28,7 +47,8 @@ class EncryptDataTest extends TestSpec {
     val multi = MultipleProviderFactory.buildMultiProvider(prov1, prov2).asInstanceOf[MasterKeyProvider[KmsMasterKey]]
 
     // encrypt
-    // the EncryptedMessage is a data structure that contains the encrypted data (ciphertext) and all encrypted data keys,
+    // the EncryptedMessage is a data structure that contains the encrypted data (ciphertext)
+    // and all encrypted data keys,
     val encryptedMessage: Array[Byte] = crypto.encryptData(multi, plainText).getResult()
 
     // decrypt
